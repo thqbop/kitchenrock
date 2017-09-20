@@ -1,0 +1,11 @@
+{ 
+    "name": "cgvietnam",
+    "version": "1.0.0",
+    "description": "Kitchenrock",
+    "title": "Kitchenrock API",
+    "url": "http://devapi.kitchenrock.com/api/v1",
+    "header": {
+        "title": "Using API",
+        "filename": "api_header.md"
+    }
+}
