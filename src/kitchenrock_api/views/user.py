@@ -4,6 +4,7 @@
 # @link http://www.codeographer.com/
 #
 # from kitchenrock_api.models import QuestionReset
+from kitchenrock_api.models.pin_code import PinCode
 
 __author__ = "hien"
 __date__ = "07 07 2016, 9:27 AM"
@@ -33,6 +34,8 @@ from kitchenrock_api.serializers import (
 from kitchenrock_api.services import UserService, EmailService, Utils
 from kitchenrock_api.views import BaseViewSet
 from kitchenrock_api.views.mixins import CreateUserMixin
+import random
+import string
 
 AVATAR_CROPTED_SIZE = 250, 250
 
@@ -117,7 +120,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiVersion 1.0.0
         @api {POST} /user Create new user
         @apiName Create
-        @apiGroup VMS_API Account
+        @apiGroup Kitchenrock_API Account
         @apiPermission none
 
         @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
@@ -160,33 +163,35 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiVersion 1.0.0
         @api {POST} /verify verify account signup token
         @apiName Verify
-        @apiGroup VMS_API Account
+        @apiGroup Kitchenrock_API Account
         @apiPermission none
 
-        @apiParam {string} token
+        @apiParam {string} pin
+        @apiParam {string} id_user
 
         @apiSuccess {object} user
         @apiSuccess {string} token
         @apiSuccess {string} appkey
         """
-        token = request.data.get('token', None)
+        pin = request.data.get('pin', None)
+        id_user = request.data.get('id_user', None)
         type = request.data.get('type', 'activation')
-        if not token:
-            raise exceptions.ParseError(('Please provide token.'))
+        if not pin:
+            raise exceptions.ParseError(('Please provide pin code.'))
 
         if 'activation' == type:
-            user_email = UserService.verify_email(token=token)
-            if user_email is False:
-                raise exceptions.ParseError(_('Invalid token.'))
-            return self.response_login(id=user_email.user_id, client=request.client)
+            user = UserService.verify_by_pin(pin=pin, id_user=id_user)
+            if user is False:
+                raise exceptions.ParseError(_('Invalid pin.'))
+            return Response({"message": "Your account has been activated"})
 
     @list_route(methods=['put', 'post'], permission_classes=())
     def password(self, request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {PUT} /user/password Set user password
+        @api {PUT} /user/password Change user password
         @apiName SetPassword
-        @apiGroup VMS_API Account
+        @apiGroup Kitchenrock_API Account
         @apiPermission none
 
         @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
@@ -221,12 +226,12 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiVersion 1.0.0
         @api {POST|PUT} /user/reset_password user forgot password
         @apiName ResetPassword
-        @apiGroup ~User Next version
+        @apiGroup Kitchenrock_API Account
         @apiPermission none
 
         @apiParam {String} [email] Required if method POST
         @apiParam {string} [uid] Required if method PUT
-        @apiParam {string} [token] Required if method PUT
+        @apiParam {string} [pin] Required if method PUT
         @apiParam {string} [password] Required if method PUT
 
         @apiSuccess [200]
@@ -234,7 +239,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         if request.method == 'PUT':
             return self.check_reset_password(request)
         elif request.method == 'POST':
-            return self.send_reset_password_link(request)
+            return self.reset_by_code(request)
         else:
             return self.check_reset_link(request)
 
@@ -245,7 +250,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiVersion 1.0.0
         @api {POST|PUT} /user/reset_pass_code User forgot password
         @apiName ResetPassword
-        @apiGroup VMS_API Account
+        @apiGroup Kitchenrock_API Account
         @apiPermission none
 
         @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
@@ -314,6 +319,25 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
 
     # tutrinhcg: add reset passcode --end
 
+    # reset by code for app
+    def reset_by_code(self,request):
+        email = request.data.get('email', None)
+        if not email:
+            raise exceptions.ParseError(_('Please provide email.'))
+        user = UserService.get_by_email(email)
+        if not user:
+            raise exceptions.NotFound(_('Email not found.'))
+        token = default_token_generator.make_token(user)
+        pin = Utils.id_generator(4)
+        p = PinCode(pin=pin,user=user)
+        p.save()
+        EmailService.reset_pin(key=token, pin=pin, user=user)
+        return Response({
+            "message": "A link with instruction has been sent to your email, please check your email to reset password.",
+            "uid": user.id
+        })
+
+    #check invalid link
     def check_reset_link(self, request):
         data = request.data.copy()
         user = self.get_user(uidb64=data['uid'])
@@ -323,6 +347,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
             raise exceptions.ParseError(_('Invalid token.'))
         return Response()
 
+    # send link reset password
     def send_reset_password_link(self, request):
         email = request.data.get('email', None)
         if not email:
@@ -335,16 +360,23 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         EmailService.reset_link(token=token, uid=uid, user=user)
         return Response({"message": "A link with instruction has been sent to your email, please check your email to reset password."})
 
+    # Reset password with new pass
     def check_reset_password(self, request):
+        pin = request.data.get('pin', None)
         serializer = PasswordResetSerialiser(data=request.data.copy())
         serializer.is_valid(raise_exception=True)
-        user = self.get_user(uidb64=serializer.data['uid'])
+        uid = urlsafe_base64_encode(force_bytes(serializer.data['uid']))
+        user = self.get_user(uidb64=uid)
+        p = PinCode.objects.order_by('-id').filter(user=user,is_active=0).first()
+        if pin != p.pin:
+            raise exceptions.ParseError(_('Invalid pin.'))
         if not user:
             raise exceptions.ParseError(_('Invalid user.'))
-        if not self.valid_token(user, serializer.data['token']):
-            raise exceptions.ParseError(_('Invalid token.'))
+        # if not self.valid_token(user, serializer.data['token']):
+        #     raise exceptions.ParseError(_('Invalid token.'))
         user.set_password(serializer.data['password'])
         user.save()
+        p.delete()
         return Response({"message": "Your password has been updated"})
 
     def get_user(self, *args, **kwargs):

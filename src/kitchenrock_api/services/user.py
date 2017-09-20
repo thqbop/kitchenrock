@@ -5,15 +5,20 @@
 #
 # @link http://www.codeographer.com/
 #
+
+
+
+
 __author__ = "hien"
 __date__ = "$Jul 05, 2016 2:29:54 PM$"
 
 import time
 import hashlib
-
+import random
+import string
 from django.db import transaction
 from django.db.models import Q
-
+from kitchenrock_api.models.pin_code import PinCode
 from kitchenrock_api.services.utils import Utils
 from kitchenrock_api.services.base import BaseService
 from kitchenrock_api.services.vmscache import VMSCacheService
@@ -213,7 +218,12 @@ class UserService(BaseService):
                 user_email.save()
                 if user_email.verified_at == 0 and send_verify_email:
                     # This email has added to user_email, but not verified
-                    cls.send_verify(token=user_email.token, email=new_email, password=password)
+                    p = PinCode()
+                    p.pin = cls.id_generator()
+                    p.user_id = user_id
+                    p.is_active = True
+                    p.save()
+                    cls.send_verify(pin=p.pin, email=new_email, password=password)
         except UserEmail.DoesNotExist:
             token = cls.gen_token(new_email)
             user_email = UserEmail()
@@ -225,7 +235,12 @@ class UserService(BaseService):
             user_email.save()
             if send_verify_email:
                 # Add this param to avoid send many verify/confirm mail
-                cls.send_verify(token=token, email=new_email, password=password)
+                p = PinCode()
+                p.pin = cls.id_generator()
+                p.user_id = user_id
+                p.is_active = True
+                p.save()
+                cls.send_verify(pin=p.pin, email=new_email, password=password)
         except Exception as e:
             return None
 
@@ -239,8 +254,8 @@ class UserService(BaseService):
     @classmethod
     def send_verify(cls, **kwargs):
         from .email import EmailService
-        EmailService.verify_email(
-            token=kwargs.pop('token'),
+        EmailService.verify_email_by_pin(
+            pin=kwargs.pop('pin'),
             email_add=kwargs.pop('email'),
             password=kwargs.pop('password'),
             template=kwargs.pop('template', 'verify')
@@ -284,6 +299,29 @@ class UserService(BaseService):
             user.is_active = True
             user.save()
             return user_email
+        except UserEmail.DoesNotExist:
+            return False
+        except Exception as e:
+            cls.log_exception(e)
+        return False
+
+    @classmethod
+    def verify_by_pin(cls, **kwargs):
+        pin = kwargs.pop('pin', None)
+        id_user = kwargs.pop('id_user', None)
+        try:
+            if pin is not None and id_user is not None:
+                pinObj = PinCode.objects.get(pin=pin, user=id_user)
+            if pinObj:
+                user_email = UserEmail.objects.get(user_id=id_user)
+                user_email.verified_at = int(time.time())
+                user_email.token = cls.gen_token(user_email.user_id)
+                user_email.save()
+                user = User.objects.get(id=user_email.user_id)
+                user.is_active = True
+                user.save()
+                PinCode.objects.filter(id=pinObj.id).delete()
+                return user_email
         except UserEmail.DoesNotExist:
             return False
         except Exception as e:
@@ -335,3 +373,6 @@ class UserService(BaseService):
             'result': users,
             'count': count
         }
+
+    def id_generator(size=4):
+        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))

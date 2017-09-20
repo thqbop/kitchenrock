@@ -104,6 +104,22 @@ class EmailService(BaseService):
         cls._sm_send_email(subject, [user_email], context, template_name, False, False)
 
     @classmethod
+    def verify_email_by_pin(cls, pin, email_add, *args, **kwargs):
+        """
+        Verify email address and active account
+        """
+        template_name = kwargs.pop('template', 'reset-pin')
+        template_name = get_template(template_name)
+        subject = "Welcome to {}".format(cls.__BRAND_NAME)
+        user_email = email_add
+        context = {
+            'pin': pin,
+            'email': email_add,
+            'password': kwargs.pop('password', None)
+        }
+        cls._sm_send_email(subject, [user_email], context, template_name, False, False)
+
+    @classmethod
     def reset_link(cls, token, uid, *args, **kwargs):
         """
         Send reset password link

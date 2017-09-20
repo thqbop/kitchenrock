@@ -138,7 +138,7 @@ class CreatePasswordSerializer(serializers.Serializer, ValidatePasswordMixin):
 class PasswordResetSerialiser(serializers.Serializer, ValidatePasswordMixin):
     uid = serializers.CharField(required=True)
     password = serializers.CharField(required=True, style={'input_type': 'password'})
-    token = serializers.CharField(required=True)
+    pin = serializers.CharField(required=True)
 
     def validate_password(self, value):
         return self.validate_password_value(value)
