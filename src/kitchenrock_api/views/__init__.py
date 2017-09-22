@@ -16,4 +16,4 @@ class BaseViewSet(viewsets.ViewSet):
 from kitchenrock_api.views.auth import AuthViewSet
 from kitchenrock_api.views.user import UserViewSet
 from kitchenrock_api.views.support import SupportViewSet
-from kitchenrock_api.views.api.congthucmonan import CongThucMonAnViewSet
+from kitchenrock_api.views.api.foodrecipe import FoodRecipeViewSet

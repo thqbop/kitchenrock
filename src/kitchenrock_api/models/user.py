@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 #
 # @link http://www.codeographer.com/
 #
-from kitchenrock_api.models.congthucmonan import CongThucMonAn
+from kitchenrock_api.models.food_recipe import FoodRecipe
 
 __author__ = "hien"
 __date__ = "07 07 2016, 10:01 AM"
@@ -111,7 +111,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
 
 class User(AbstractUser):
     is_disabled = models.BooleanField(default=False)
-    congthucmonan = models.ManyToManyField(CongThucMonAn, db_table='kitchenrock_congthucyeuthich')
+    congthucmonan = models.ManyToManyField(FoodRecipe, db_table='kitchenrock_congthucyeuthich')
 
     class Meta(AbstractUser.Meta):
         db_table = 'auth_user'

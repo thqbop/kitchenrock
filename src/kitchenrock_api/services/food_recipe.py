@@ -1,12 +1,12 @@
 from rest_framework import exceptions
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
-from kitchenrock_api.models.congthucmonan import CongThucMonAn
-from kitchenrock_api.models.theloai import TheLoai
+from kitchenrock_api.models.food_recipe import FoodRecipe
+from kitchenrock_api.models.review import Review
 from kitchenrock_api.services.base import BaseService
 
 
-class CongThucMonAnService(BaseService):
+class FoodRecipeService(BaseService):
 
     # @classmethod
     # def save(cls,data,**kwargs):
@@ -32,9 +32,9 @@ class CongThucMonAnService(BaseService):
         order_by = kwargs.get('order', '-id_CTMA')
         excludes = kwargs.get('excludes', {})
         if search:
-            ctma = CongThucMonAn.objects.order_by(order_by).filter(**filter).filter(ten__icontains=search)[offset:end]
+            ctma = FoodRecipe.objects.order_by(order_by).filter(**filter).filter(ten__icontains=search)[offset:end]
         else:
-            ctma = CongThucMonAn.objects.order_by(order_by).filter(**filter).exclude(**excludes)[offset:end]
+            ctma = FoodRecipe.objects.order_by(order_by).filter(**filter).exclude(**excludes)[offset:end]
         return ctma
 
     @classmethod
@@ -46,24 +46,20 @@ class CongThucMonAnService(BaseService):
         order_by = kwargs.get('order', '-id_CTMA')
         filter = kwargs.get('filter', {})
         if search:
-            queryset = CongThucMonAn.objects.filter(**filter).filter(theloai__id_TL=id_category,ten__icontains=search).order_by(order_by)[
+            queryset = FoodRecipe.objects.filter(**filter).filter(theloai__id_TL=id_category,ten__icontains=search).order_by(order_by)[
                        offset:end]
         else:
-            queryset = CongThucMonAn.objects.filter(**filter).filter(theloai__id_TL=id_category).order_by(order_by)[
+            queryset = FoodRecipe.objects.filter(**filter).filter(theloai__id_TL=id_category).order_by(order_by)[
                        offset:end]
 
         return queryset
 
     @classmethod
-    def get_list_by_user(cls, id_user, **kwargs):
-        limit = kwargs.get('limit', 30)
+    def get_list_review(cls, **kwargs):
+        limit = kwargs.get('limit', 5)
         offset = kwargs.get('offset', 0)
-        search = kwargs.get('search', None)
         end = offset + limit
-        order_by = kwargs.get('order', '-id_CTMA')
+        order_by = kwargs.get('order', '-id')
         filter = kwargs.get('filter', {})
-        if search:
-            queryset = CongThucMonAn.objects.order_by(order_by).filter(**filter).filter(user=id_user,ten__icontains=search)[offset:end]
-        else:
-            queryset = CongThucMonAn.objects.order_by(order_by).filter(**filter).filter(user=id_user)[offset:end]
+        queryset = Review.objects.order_by(order_by).filter(**filter).filter(ctma=kwargs.get('pk'))[offset:end]
         return queryset

@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 
 from django.conf import settings
 
-from kitchenrock_api.models.congthucmonan import CongThucMonAn
-from kitchenrock_api.models.theloai import TheLoai
-from kitchenrock_api.serializers.congthucmonan import CongThucMonAnSerializer
+from kitchenrock_api.models.food_recipe import FoodRecipe
+from kitchenrock_api.models.food_category import FoodCategory
+from kitchenrock_api.serializers.food_recipe import FoodRecipeSerializer
 from kitchenrock_api.upload_file.handle_file import handle_upload
 
 def get_logo_url(logo):
@@ -24,8 +24,8 @@ def get_logo_url(logo):
 # class TLCTInline(admin.TabularInline):
 #     model = TheLoaiCongThuc
 
-class CTMAAdmin(admin.ModelAdmin):
-    fields = ('ten', 'hinhAnh', 'doKho','thoiGianChuanBi','thoiGianThucHien','cachLam','nguyenLieu','soKhauPhanAn', 'theloai')
+class FoodRecipeAdmin(admin.ModelAdmin):
+    fields = ('ten', 'hinhAnh', 'doKho','thoiGianChuanBi','thoiGianThucHien','nguyenLieu','cachLam','soKhauPhanAn', 'theloai')
     list_display = ('ten',)
     # inlines = [
     #     TLCTInline,
@@ -42,7 +42,7 @@ class CTMAAdmin(admin.ModelAdmin):
 
 
 
-class TheLoaiAdmin(admin.ModelAdmin):
+class FoodCategoryAdmin(admin.ModelAdmin):
     list_display = ('ten', )
 
 
@@ -56,5 +56,5 @@ class TheLoaiAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User)
-admin.site.register(CongThucMonAn, CTMAAdmin)
-admin.site.register(TheLoai, TheLoaiAdmin)
+admin.site.register(FoodRecipe, FoodRecipeAdmin)
+admin.site.register(FoodCategory, FoodCategoryAdmin)

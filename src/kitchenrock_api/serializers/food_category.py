@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from kitchenrock_api.models.theloai import TheLoai
+from kitchenrock_api.models.food_category import FoodCategory
 
 
 class TheLoaiSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TheLoai
+        model = FoodCategory
         fields = '__all__'

@@ -6,8 +6,8 @@ from kitchenrock_api.models.api import Api
 from kitchenrock_api.models.user_email import UserEmail
 from kitchenrock_api.models.loginlog import LoginLog
 from kitchenrock_api.models.user_pref import UserPref
-from kitchenrock_api.models.congthucmonan import CongThucMonAn
-from kitchenrock_api.models.giodicho import GioDiCho
-from kitchenrock_api.models.theloai import TheLoai
-from kitchenrock_api.models.danhgia import DanhGia
+from kitchenrock_api.models.food_recipe import FoodRecipe
+from kitchenrock_api.models.cart import Cart
+from kitchenrock_api.models.food_category import FoodCategory
+from kitchenrock_api.models.review import Review
 

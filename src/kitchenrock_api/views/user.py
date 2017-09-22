@@ -34,8 +34,6 @@ from kitchenrock_api.serializers import (
 from kitchenrock_api.services import UserService, EmailService, Utils
 from kitchenrock_api.views import BaseViewSet
 from kitchenrock_api.views.mixins import CreateUserMixin
-import random
-import string
 
 AVATAR_CROPTED_SIZE = 250, 250
 
