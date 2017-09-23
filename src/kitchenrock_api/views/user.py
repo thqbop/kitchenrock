@@ -329,7 +329,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         pin = Utils.id_generator(4)
         p = PinCode(pin=pin,user=user)
         p.save()
-        EmailService.reset_pin(key=token, pin=pin, user=user)
+        EmailService.reset_pin( pin=pin, email=email)
         return Response({
             "message": "A link with instruction has been sent to your email, please check your email to reset password.",
             "uid": user.id

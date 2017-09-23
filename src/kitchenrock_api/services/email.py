@@ -4,7 +4,7 @@
 #
 # @link http://www.codeographer.com/
 #
-from kitchenrock_api.services.base import *
+from kitchenrock_api.services.base import BaseService
 from kitchenrock_api.services.user import UserService
 from template_email import TemplateEmail
 from kitchenrock_api.services.queue import QueueService
@@ -108,7 +108,7 @@ class EmailService(BaseService):
         """
         Verify email address and active account
         """
-        template_name = kwargs.pop('template', 'reset-pin')
+        template_name = kwargs.pop('template', 'verify')
         template_name = get_template(template_name)
         subject = "Welcome to {}".format(cls.__BRAND_NAME)
         user_email = email_add
@@ -151,21 +151,20 @@ class EmailService(BaseService):
         cls._sm_send_email(subject, [SUPPORT_EMAIL], context, template_name, reply_to=email)
 
     @classmethod
-    def reset_pin(cls, key, pin, *args, **kwargs):
-        user = kwargs.get('user', None)
-        user_id = kwargs.get('user_id', None)
-        if not user and not user_id:
-            raise EmailError('Please provide user or user id param.')
-        if not user:
-            user = UserService.get_user(user_id)
+    def reset_pin(cls, pin, email, *args, **kwargs):
+        # user = kwargs.get('user', None)
+        # user_id = kwargs.get('user_id', None)
+        # if not user and not user_id:
+        #     raise EmailError('Please provide user or user id param.')
+        # if not user:
+        #     user = UserService.get_user(user_id)
 
         template_name = get_template('reset-pin')
         subject = 'Somebody requested a new PIN for your {} account'.format(cls.__BRAND_NAME)
-        user_email = '"%s" <%s>' % (user.get_full_name(), user.email)
+        user_email = email
         context = {
-            'key': key,
             'pin': pin,
-            'username': user.email
+            'username': email
         }
         cls._sm_send_email(subject, [user_email], context, template_name, False, False)
 

@@ -2,14 +2,14 @@
 {% load email %}
 {% block container %}
 {% body %}
-    Somebody recently asked to reset your VMS PIN.
+    Somebody recently asked to reset your Kitchenrock PIN.
 
-    To log on to VMS App, use the following PIN:
+    To log on to Kitchenrock App, use the following PIN:
 
     PIN: {{ pin }}
 
     --------------
-    copyright 2017 VMS
+    copyright 2017 Kitchenrock
 {% endbody %}
 
 {% bodyhtml %}
@@ -18,7 +18,7 @@
     <div class="paragraph" style="line-height: 1.6; padding-bottom: 20px;">
         Hi,
         <div>
-            Somebody recently asked to reset your VMS PIN.
+            Somebody recently asked to reset your Kitchenrock PIN.
             <br><br>
             <strong>Didn't request this change?</strong>
             If you didn't request a new PIN, <a href="{{ support_link }}" class="italic underline" style="color: #000; text-decoration: underline; font-style: italic;">let us know immediately</a>
@@ -26,9 +26,9 @@
         </div>
 
         <hr>
-        <div>To log on to VMS App, use the following PIN:<br><br></div>
+        <div>To log on to Kitchenrock App, use the following PIN:<br><br></div>
         <div>
-            <strong>PIN:</strong> {{ pin }}
+            PIN:<strong>{{ pin }}</strong>
         </div>
     </div>
 {% endbodyhtml %}

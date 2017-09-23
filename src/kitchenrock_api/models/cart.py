@@ -9,5 +9,5 @@ class Cart(models.Model):
     ngayTao = models.DateField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('taikhoan','ctma')
+        unique_together = ('taikhoan','ctma','ngayTao')
         db_table = "kitchenrock_giodicho"

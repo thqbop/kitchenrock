@@ -265,6 +265,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='cart',
-            unique_together=set([('taikhoan', 'ctma')]),
+            unique_together=set([('taikhoan', 'ctma', 'ngayTao')]),
         ),
     ]
