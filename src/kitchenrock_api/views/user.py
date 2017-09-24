@@ -159,10 +159,23 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
     def verify(self, request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {POST} /verify verify account signup token
+        @api {POST} /user/verify verify account signup token
         @apiName Verify
         @apiGroup Kitchenrock_API Account
         @apiPermission none
+	
+	@apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
+        @apiHeader {string} Appid Required
+        @apiHeader {string} Agent Optional
+        @apiHeader {string} Authorization Optional. format: token <token_string>
+        @apiHeaderExample {json} Request Header Non Authenticate Example:
+        {
+            "Type": 1,
+            "Device": "postman-TEST",
+            "Appid": 1,
+            "Agent": "Samsung A5 2016, Android app, build_number other_info"
+        }
 
         @apiParam {string} pin
         @apiParam {string} id_user
@@ -226,6 +239,19 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiName ResetPassword
         @apiGroup Kitchenrock_API Account
         @apiPermission none
+
+	@apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
+        @apiHeader {string} Appid Required
+        @apiHeader {string} Agent Optional
+        @apiHeader {string} Authorization Optional. format: token <token_string>
+        @apiHeaderExample {json} Request Header Non Authenticate Example:
+        {
+            "Type": 1,
+            "Device": "postman-TEST",
+            "Appid": 1,
+            "Agent": "Samsung A5 2016, Android app, build_number other_info"
+        }
 
         @apiParam {String} [email] Required if method POST
         @apiParam {string} [uid] Required if method PUT

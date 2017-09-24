@@ -30,7 +30,10 @@ class AuthSerialiserMixin(object):
         user = authenticate(**attrs)
         if user:
             if not user.is_active:
-                msg = _('User account is not activated.')
+                msg = {
+                    'msg': 'User account is not activated.',
+                    'id_user': user.id
+                }
                 raise exceptions.ValidationError(msg)
             if user.is_disabled:
                 raise exceptions.ValidationError(_('Your account have been disabled.'))

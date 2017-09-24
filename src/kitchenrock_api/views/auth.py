@@ -3,6 +3,7 @@
 #
 # @link http://www.codeographer.com/
 #
+from rest_framework.exceptions import ValidationError
 
 __author__ = "hien"
 __date__ = "$Jul 05, 2016 09:40:00 AM$"

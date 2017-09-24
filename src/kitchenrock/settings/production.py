@@ -88,8 +88,8 @@ LOGGING = {
 logging.config.dictConfig(LOGGING)
 
 # # Media S3 config
-# MEDIAFILES_LOCATION = 'media'
-# DEFAULT_FILE_STORAGE = 'kitchenrock.storage.MediaStorage'
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'kitchenrock.storage.MediaStorage'
 #MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 MEDIA_URL = env('MEDIA_URL', default='http://static1.vms.com/media/')
 #
