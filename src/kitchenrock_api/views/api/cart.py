@@ -1,5 +1,8 @@
+from django.utils import timezone
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
+from kitchenrock_api.models.cart import Cart
 from kitchenrock_api.models.food_recipe import FoodRecipe
 from kitchenrock_api.permissions import IsAuthenticated
 from kitchenrock_api.serializers.cart import CartSerializer
@@ -57,10 +60,11 @@ class CartViewSet(BaseViewSet):
         food = FoodRecipeSerializer(FoodRecipe.objects.get(pk=data['ctma']))
         return Response(food.data)
 
-    def list(self,request, *args, **kwargs):
+    @list_route(methods=['post'])
+    def list_by_date(self,request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {GET} /cart get list food recipe in cart with date create
+        @api {POST} /cart get list food recipe in cart with date create
         @apiName Cart
         @apiGroup FoodRecipes
         @apiPermission User
@@ -78,6 +82,7 @@ class CartViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
+        @apiParam {date} ngayTao
 
         @apiSuccess {object[]} result
         @apiSuccess {number} result.id_CTMA
@@ -93,6 +98,17 @@ class CartViewSet(BaseViewSet):
         @apiSuccess {int} result.soKhauPhanAn
         @apiSuccess {int} result.theloai
         """
-
+        date = request.data.get('ngayTao', timezone.now())
+        user_id = request.user.id
+        result = Cart.objects.filter(taikhoan=user_id,ngayTao=date).select_related('ctma')
+        foodincart = []
+        for obj in result:
+            foodincart.append(obj.ctma)
+        if len(foodincart) == 0:
+            return Response({
+                'message': 'Không có dữ liệu'
+            })
+        serializer = FoodRecipeSerializer(foodincart, many=True)
+        return Response(serializer.data)
 
 

@@ -1,14 +1,15 @@
 from django.contrib import admin
 
 # Register your models here.
-from django.contrib.auth.models import User
 
 from django.conf import settings
 
 from kitchenrock_api.models.food_recipe import FoodRecipe
 from kitchenrock_api.models.food_category import FoodCategory
-from kitchenrock_api.serializers.food_recipe import FoodRecipeSerializer
+from kitchenrock_api.models.user import User
 from kitchenrock_api.upload_file.handle_file import handle_upload
+from kitchenrock_api.views.mixins import CreateUserMixin
+
 
 def get_logo_url(logo):
     if not logo:
@@ -53,8 +54,14 @@ class FoodCategoryAdmin(admin.ModelAdmin):
 #         return obj.ten
 
 
+class UserAdmin(admin.ModelAdmin):
+    fields = ('email', 'first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled', 'congthucmonan')
+    readonly_fields = ('email',)
+
+    def has_add_permission(self, request):
+        return False
 
 
-admin.site.register(User)
+admin.site.register(User,UserAdmin)
 admin.site.register(FoodRecipe, FoodRecipeAdmin)
 admin.site.register(FoodCategory, FoodCategoryAdmin)

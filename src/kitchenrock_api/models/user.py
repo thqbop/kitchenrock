@@ -131,10 +131,5 @@ class User(AbstractUser):
         return prev_login
 
     def __str__(self):
-        return '{},{}'.format(
-            self.first_name + self.last_name,
-            self.email,
-            # self.user_type,
-            # self.manager_id
-        )
+        return self.email
 
