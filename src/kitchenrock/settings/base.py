@@ -36,7 +36,7 @@ USER_DATA_SYNC_PATH = 'updata'
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
 SECRET_KEY = env('SECRET_KEY')
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 ELASTIC_HOST = env('ELASTIC_HOST')
 ELASTIC_PORT = env('ELASTIC_PORT')
 API_HOST = env('API_HOST')

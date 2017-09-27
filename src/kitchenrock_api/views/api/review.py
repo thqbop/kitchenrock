@@ -31,16 +31,16 @@ class ReviewViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {string} noiDung
-        @apiParam {int} soSao
-        @apiParam {int} ctma
+        @apiParam {string} noiDung Content Review of user
+        @apiParam {int} soSao star voted
+        @apiParam {int} ctma id of FR
 
-        @apiSuccess {object} result
-        @apiSuccess {int} result.soSao
-        @apiSuccess {string} result.noiDung
-        @apiSuccess {date} result.thoiGian
-        @apiSuccess {string} result.ctma
-        @apiSuccess {string} result.taikhoan
+        @apiSuccess {object} result Review object
+        @apiSuccess {int} result.soSao stars voted
+        @apiSuccess {string} result.noiDung content Review
+        @apiSuccess {date} result.thoiGian create time review
+        @apiSuccess {string} result.ctma id of FR
+        @apiSuccess {string} result.taikhoan id user
 
         @apiError UserWasReview User was review this food recipe
         @apiErrorExample {json} Error-Response:

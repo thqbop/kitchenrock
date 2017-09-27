@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from kitchenrock_api.models.food_recipe import FoodRecipe
 from kitchenrock_api.models.user import User
 from kitchenrock_api.permissions import IsAuthenticated
+from kitchenrock_api.serializers.food_category import CategorySerializer
 from kitchenrock_api.serializers.food_recipe import FoodRecipeSerializer
 from kitchenrock_api.serializers.review import ReviewSerializer
 from kitchenrock_api.services.food_recipe import FoodRecipeService
@@ -66,24 +67,27 @@ class FoodRecipeViewSet(BaseViewSet):
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
         @apiSuccess {json} result
-        @apiSuccess {boolean} is_favourite
-        @apiSuccess {object} food
-        @apiSuccess {number} food.id_CTMA
-        @apiSuccess {string} food.ten
-        @apiSuccess {string} food.hinhAnh
-        @apiSuccess {int} food.doKho
-        @apiSuccess {string} food.thoiGianChuanBi
-        @apiSuccess {string} food.thoiGianThucHien
-        @apiSuccess {string} food.cachLam
-        @apiSuccess {string} food.nguyenLieu
-        @apiSuccess {int} food.soLuongYeuThich
-        @apiSuccess {date} food.ngayKhoiTao
-        @apiSuccess {int} food.soKhauPhanAn
-        @apiSuccess {int} food.theloai
+        @apiSuccess {object[]} categories List food categories of FR
+        @apiSuccess {boolean} is_favourite Is this food favourite?
+        @apiSuccess {object} food Food recipe (FR) object
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         pk = kwargs.get('pk')
         id_user = request.user.id
         foodrecipe = FoodRecipe.objects.get(pk=pk)
+        cat =  foodrecipe.theloai.all()
+        cat_serializer = CategorySerializer(cat, many=True)
         user = User.objects.filter(congthucmonan=pk, pk=id_user)
         serializer = self.serializer_class(foodrecipe)
         # if user_id and food recipes are exists in favourite foods table
@@ -93,7 +97,8 @@ class FoodRecipeViewSet(BaseViewSet):
             is_favourite = 'False'
         return Response({
            'food': serializer.data,
-            'is_favourite':is_favourite
+            'is_favourite':is_favourite,
+            'categories' : cat_serializer.data
         })
 
 
@@ -118,19 +123,19 @@ class FoodRecipeViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiSuccess {object[]} list_CTMA
-        @apiSuccess {number} list_CTMA.id_CTMA
-        @apiSuccess {string} list_CTMA.ten
-        @apiSuccess {string} list_CTMA.hinhAnh
-        @apiSuccess {int} list_CTMA.doKho
-        @apiSuccess {string} list_CTMA.thoiGianChuanBi
-        @apiSuccess {string} list_CTMA.thoiGianThucHien
-        @apiSuccess {string} list_CTMA.cachLam
-        @apiSuccess {string} list_CTMA.nguyenLieu
-        @apiSuccess {int} list_CTMA.soLuongYeuThich
-        @apiSuccess {date} list_CTMA.ngayKhoiTao
-        @apiSuccess {int} list_CTMA.soKhauPhanAn
-        @apiSuccess {int} list_CTMA.theloai
+        @apiSuccess {object[]} food
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         kwargs['limit'] = int(request.query_params.get('limit', '30'))
         kwargs['offset'] = int(request.query_params.get('offset', '0'))
@@ -166,19 +171,19 @@ class FoodRecipeViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiSuccess {object[]} list_CTMA
-        @apiSuccess {number} list_CTMA.id_CTMA
-        @apiSuccess {string} list_CTMA.ten
-        @apiSuccess {string} list_CTMA.hinhAnh
-        @apiSuccess {int} list_CTMA.doKho
-        @apiSuccess {string} list_CTMA.thoiGianChuanBi
-        @apiSuccess {string} list_CTMA.thoiGianThucHien
-        @apiSuccess {string} list_CTMA.cachLam
-        @apiSuccess {string} list_CTMA.nguyenLieu
-        @apiSuccess {int} list_CTMA.soLuongYeuThich
-        @apiSuccess {date} list_CTMA.ngayKhoiTao
-        @apiSuccess {int} list_CTMA.soKhauPhanAn
-        @apiSuccess {int} list_CTMA.theloai
+        @apiSuccess {object[]} food
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         kwargs['limit'] = int(request.query_params.get('limit', '10'))
         kwargs['search'] = request.query_params.get('search', None)
@@ -214,19 +219,19 @@ class FoodRecipeViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiSuccess {object[]} list_CTMA
-        @apiSuccess {number} list_CTMA.id_CTMA
-        @apiSuccess {string} list_CTMA.ten
-        @apiSuccess {string} list_CTMA.hinhAnh
-        @apiSuccess {int} list_CTMA.doKho
-        @apiSuccess {string} list_CTMA.thoiGianChuanBi
-        @apiSuccess {string} list_CTMA.thoiGianThucHien
-        @apiSuccess {string} list_CTMA.cachLam
-        @apiSuccess {string} list_CTMA.nguyenLieu
-        @apiSuccess {int} list_CTMA.soLuongYeuThich
-        @apiSuccess {date} list_CTMA.ngayKhoiTao
-        @apiSuccess {int} list_CTMA.soKhauPhanAn
-        @apiSuccess {int} list_CTMA.theloai
+        @apiSuccess {object[]} food
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         kwargs['limit'] = int(request.query_params.get('limit', '30'))
         kwargs['offset'] = int(request.query_params.get('offset', '0'))
@@ -262,19 +267,19 @@ class FoodRecipeViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiSuccess {object[]} list_CTMA
-        @apiSuccess {number} list_CTMA.id_CTMA
-        @apiSuccess {string} list_CTMA.ten
-        @apiSuccess {string} list_CTMA.hinhAnh
-        @apiSuccess {int} list_CTMA.doKho
-        @apiSuccess {string} list_CTMA.thoiGianChuanBi
-        @apiSuccess {string} list_CTMA.thoiGianThucHien
-        @apiSuccess {string} list_CTMA.cachLam
-        @apiSuccess {string} list_CTMA.nguyenLieu
-        @apiSuccess {int} list_CTMA.soLuongYeuThich
-        @apiSuccess {date} list_CTMA.ngayKhoiTao
-        @apiSuccess {int} list_CTMA.soKhauPhanAn
-        @apiSuccess {int} list_CTMA.theloai
+        @apiSuccess {object[]} food
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         kwargs['limit'] = int(request.query_params.get('limit', '30'))
         kwargs['offset'] = int(request.query_params.get('offset', '0'))
@@ -331,8 +336,8 @@ class FoodRecipeViewSet(BaseViewSet):
     def favourite(self, request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {PUT} /foodrecipe/favourite  List comment
-        @apiName ListComment
+        @api {PUT} /foodrecipe/favourite  Favourite
+        @apiName MakeFavouriteFood
         @apiGroup FoodRecipes
         @apiPermission User
 
@@ -349,15 +354,22 @@ class FoodRecipeViewSet(BaseViewSet):
            "Agent": "Samsung A5 2016, Android app, build_number other_info",
            "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {boolean} is_favourite
-        @apiParam {int} id_ctma
+        @apiParam {boolean} is_favourite Status favourite of FR
+        @apiParam {int} id_ctma id of FR
 
-        @apiSuccess {object[]} result
-        @apiSuccess {int} result.soSao
-        @apiSuccess {string} result.noiDung
-        @apiSuccess {date} result.thoiGian
-        @apiSuccess {string} result.ctma
-        @apiSuccess {string} result.taikhoan
+        @apiSuccess {object} food object food recipe
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
 
         is_favourite = bool(int(request.data.get('is_favourite')))

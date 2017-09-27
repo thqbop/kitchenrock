@@ -3,7 +3,7 @@ from rest_framework import serializers
 from kitchenrock_api.models.food_category import FoodCategory
 
 
-class TheLoaiSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodCategory

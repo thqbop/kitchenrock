@@ -36,21 +36,21 @@ class CartViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {int} ctma
+        @apiParam {int} ctma id of FR
 
-        @apiSuccess {object} result
-        @apiSuccess {number} result.id_CTMA
-        @apiSuccess {string} result.ten
-        @apiSuccess {string} result.hinhAnh
-        @apiSuccess {int} result.doKho
-        @apiSuccess {string} result.thoiGianChuanBi
-        @apiSuccess {string} result.thoiGianThucHien
-        @apiSuccess {string} result.cachLam
-        @apiSuccess {string} result.nguyenLieu
-        @apiSuccess {int} result.soLuongYeuThich
-        @apiSuccess {date} result.ngayKhoiTao
-        @apiSuccess {int} result.soKhauPhanAn
-        @apiSuccess {int} result.theloai
+        @apiSuccess {object} food object food recipe
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         data = request.data.copy()
         data['taikhoan'] = request.user.id
@@ -82,21 +82,21 @@ class CartViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {date} ngayTao
+        @apiParam {date} ngayTao Create date of Cart
 
-        @apiSuccess {object[]} result
-        @apiSuccess {number} result.id_CTMA
-        @apiSuccess {string} result.ten
-        @apiSuccess {string} result.hinhAnh
-        @apiSuccess {int} result.doKho
-        @apiSuccess {string} result.thoiGianChuanBi
-        @apiSuccess {string} result.thoiGianThucHien
-        @apiSuccess {string} result.cachLam
-        @apiSuccess {string} result.nguyenLieu
-        @apiSuccess {int} result.soLuongYeuThich
-        @apiSuccess {date} result.ngayKhoiTao
-        @apiSuccess {int} result.soKhauPhanAn
-        @apiSuccess {int} result.theloai
+        @apiSuccess {object[]} food List object food recipe
+        @apiSuccess {number} food.id_CTMA id of FR
+        @apiSuccess {string} food.ten name of FR
+        @apiSuccess {string} food.hinhAnh picture link of FR
+        @apiSuccess {int} food.doKho Level of FR
+        @apiSuccess {string} food.thoiGianChuanBi Prepare time
+        @apiSuccess {string} food.thoiGianThucHien execution time
+        @apiSuccess {string} food.cachLam How to do FR
+        @apiSuccess {string} food.nguyenLieu Material of FR
+        @apiSuccess {int} food.soLuongYeuThich Lover number
+        @apiSuccess {date} food.ngayKhoiTao Create date
+        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
+        @apiSuccess {int[]} food.theloai Food Categories
         """
         date = request.data.get('ngayTao', timezone.now())
         user_id = request.user.id
