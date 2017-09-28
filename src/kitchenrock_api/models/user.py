@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 # @link http://www.codeographer.com/
 #
 from kitchenrock_api.models.food_recipe import FoodRecipe
+from kitchenrock_api.models.pathological import Pathological
 
 __author__ = "hien"
 __date__ = "07 07 2016, 10:01 AM"
@@ -112,6 +113,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
 class User(AbstractUser):
     is_disabled = models.BooleanField(default=False)
     congthucmonan = models.ManyToManyField(FoodRecipe, db_table='kitchenrock_congthucyeuthich')
+    pathological = models.ManyToManyField(Pathological, db_table='kitchenrock_benhly_nguoidung') # pathological of user
 
     class Meta(AbstractUser.Meta):
         db_table = 'auth_user'

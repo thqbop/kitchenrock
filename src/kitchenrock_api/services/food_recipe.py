@@ -1,7 +1,8 @@
 from rest_framework import exceptions
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
-from kitchenrock_api.models.food_recipe import FoodRecipe
+from kitchenrock_api.models.food_recipe import FoodRecipe, FoodNutrition
+from kitchenrock_api.models.pathological import SearchPathological
 from kitchenrock_api.models.review import Review
 from kitchenrock_api.services.base import BaseService
 
@@ -21,6 +22,22 @@ class FoodRecipeService(BaseService):
     #             setattr(ctma_data, key, data[key])
     #         ctma_data = ctma_data.save()
     #         return ctma_data
+
+    @classmethod
+    def check_healthy(cls,food,user,*args,**kwargs):
+        warning = []
+        nutritrions = food.dinhduong.all()
+        pathologicals = user.pathological.all()
+        for pathol in pathologicals:
+            for nutri in nutritrions:
+                #get che do dinh duong cho phép của bệnh
+                objPathol_Nutri = SearchPathological.objects.get(nutrition=nutri,pathological=pathol)
+                #get nutrition of food
+                objFood_Nutri = FoodNutrition.objects.get(ctma=food,dinhduong=nutri)
+                # nutrition value need between permitted levels (max_value and min_value) of Pathological
+                if objFood_Nutri.value > objPathol_Nutri.max_value or objFood_Nutri.value < objPathol_Nutri.min_value:
+                    warning.append(nutri.name +  ' vượt quá mức cho phép dành cho sức khỏe của bạn. Cần cân nhắc.')
+        return warning
 
     @classmethod
     def get_list(cls,*args, **kwargs):

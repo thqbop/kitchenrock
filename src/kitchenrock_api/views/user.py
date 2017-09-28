@@ -4,7 +4,7 @@
 # @link http://www.codeographer.com/
 #
 # from kitchenrock_api.models import QuestionReset
-from kitchenrock_api.models.pin_code import PinCode
+
 
 __author__ = "hien"
 __date__ = "07 07 2016, 9:27 AM"
@@ -24,13 +24,16 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
-
+from kitchenrock_api.permissions import IsAuthenticated
 from kitchenrock_api import permissions
 from kitchenrock_api.decorators import logging
 from kitchenrock_api.mixins import UserLoginMixin
 from kitchenrock_api.serializers import (
     UserSerializer, PasswordSerializer, PasswordResetSerialiser
 )
+from kitchenrock_api.models.pathological import Pathological
+from kitchenrock_api.models.pin_code import PinCode
+from kitchenrock_api.models.user import User
 from kitchenrock_api.services import UserService, EmailService, Utils
 from kitchenrock_api.views import BaseViewSet
 from kitchenrock_api.views.mixins import CreateUserMixin
@@ -139,21 +142,52 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiParam {string} [first_name]
         @apiParam {string} [middle_name]
         @apiParam {string} [last_name]
-        @apiParam {object} profile
-        @apiParam {number} [profile.gender] (0: male, 1: female)
-        @apiParam {string} [profile.dob]
-        @apiParam {file} [profile.avatar] upload file
-        @apiParam {string} [profile.address1]
-        @apiParam {string} [profile.address2]
-        @apiParam {string} [profile.zip_code]
-        @apiParam {string} [profile.city]
-        @apiParam {string} [profile.home_phonenumber] Home phone
-        @apiParam {string} [profile.mobile_phonenumber] Mobile phone
 
         @apiSuccess {object} user
         """
         data = request.data.copy()
         return self.save(data)
+
+    @list_route(methods=['post'], permission_classes=(IsAuthenticated,))
+    def add_pathol(self,request,*args, **kwargs):
+        """
+        @apiVersion 1.0.0
+        @api {POST} /user/add_pathol Update user (create pathological)
+        @apiName Update user (create pathological)
+        @apiGroup Kitchenrock_API Account
+        @apiPermission none
+
+        @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
+        @apiHeader {string} Appid Required
+        @apiHeader {string} Agent Optional
+        @apiHeader {string} Authorization Required. format: token <token_string>
+        @apiHeaderExample {json} Request Header Non Authenticate Example:
+        {
+            "Type": 1,
+            "Device": "postman-TEST",
+            "Appid": 1,
+            "Agent": "Samsung A5 2016, Android app, build_number other_info"
+        }
+
+        @apiParam {json[]} pathological
+        @apiParam {string} pathological.id_pathological
+        @apiParam {boolean} pathological.answser
+
+        @apiSuccess {string} message
+        """
+        data = request.data.copy()
+        user = User.objects.get(pk=request.user.id)
+        for obj in data:
+            if bool(int(obj['answer'])):
+                pathological = Pathological.objects.get(pk=obj['id_pathological'])
+                user.pathological.add(pathological)
+            else:
+                pathological = Pathological.objects.get(pk=obj['id_pathological'])
+                user.pathological.remove(pathological)
+        user.save()
+        return Response({"message": "Cập nhật thành công"})
+
 
     @list_route(methods=['post'], permission_classes=())
     def verify(self, request, *args, **kwargs):
@@ -164,7 +198,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiGroup Kitchenrock_API Account
         @apiPermission none
 	
-	@apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+	    @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
         @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
         @apiHeader {string} Appid Required
         @apiHeader {string} Agent Optional
@@ -185,16 +219,19 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiSuccess {string} appkey
         """
         pin = request.data.get('pin', None)
+        client = request.client
+        remember_me = bool(request.data.get('remember_me', False))
         id_user = request.data.get('id_user', None)
         type = request.data.get('type', 'activation')
         if not pin:
             raise exceptions.ParseError(('Please provide pin code.'))
 
         if 'activation' == type:
-            user = UserService.verify_by_pin(pin=pin, id_user=id_user)
-            if user is False:
+            user_mail = UserService.verify_by_pin(pin=pin, id_user=id_user)
+            if user_mail is False:
                 raise exceptions.ParseError(_('Invalid pin.'))
-            return Response({"message": "Your account has been activated"})
+            # return Response({"message": "Your account has been activated"})
+            return self.response_login(id=user_mail.user_id, client=client, remember_me=remember_me)
 
     @list_route(methods=['put', 'post'], permission_classes=())
     def password(self, request, *args, **kwargs):
