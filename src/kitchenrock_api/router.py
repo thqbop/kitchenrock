@@ -4,7 +4,7 @@
 # @link http://www.codeographer.com/
 #
 #
-from kitchenrock_api.views.api.foodrecipe import FoodRecipeViewSet
+from kitchenrock_api.views.api.pathological import PathologicalViewSet
 
 __author__ = "hien"
 __date__ = "$Jul 05, 2016 01:47:00 PM$"
@@ -25,7 +25,7 @@ router.register(r'support', SupportViewSet, base_name="Support")  # Support view
 router.register(r'foodrecipe', FoodRecipeViewSet, base_name="foodrecipe")
 router.register(r'review', ReviewViewSet, base_name="review")
 router.register(r'cart', CartViewSet, base_name="cart")
-
+router.register(r'pathological', PathologicalViewSet, base_name="pathological")
 
 urlpatterns = [
     url(r'^', include(router.urls)),
