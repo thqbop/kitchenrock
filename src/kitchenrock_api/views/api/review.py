@@ -22,7 +22,7 @@ class ReviewViewSet(BaseViewSet):
         @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
         @apiHeader {string} Appid Required
         @apiHeader {string} Agent Optional
-        @apiHeader {string} Authorization Optional. format: token <token_string>
+        @apiHeader {string} Authorization Required. format: token <token_string>
         @apiHeaderExample {json} Request Header Authenticated Example:
         {
             "Type": 1,
@@ -31,28 +31,28 @@ class ReviewViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {string} noiDung Content Review of user
-        @apiParam {int} soSao star voted
-        @apiParam {int} ctma id of FR
+        @apiParam {string} content Content Review of user
+        @apiParam {int} star star voted
+        @apiParam {int} foodrecipe id of FR
 
         @apiSuccess {object} result Review object
-        @apiSuccess {int} result.soSao stars voted
-        @apiSuccess {string} result.noiDung content Review
-        @apiSuccess {date} result.thoiGian create time review
-        @apiSuccess {string} result.ctma id of FR
-        @apiSuccess {string} result.taikhoan id user
+        @apiSuccess {int} result.star stars voted
+        @apiSuccess {string} result.content content Review
+        @apiSuccess {date} result.create_date create time review
+        @apiSuccess {string} result.foodrecipe id of FR
+        @apiSuccess {string} result.user id user
 
         @apiError UserWasReview User was review this food recipe
         @apiErrorExample {json} Error-Response:
         HTTP/1.1 400 User was review
         {
             "non_field_errors": [
-                "The fields ctma, taikhoan must make a unique set."
+                "The fields foodrecipe, user must make a unique set."
             ]
         }
         """
         data = request.data.copy()
-        data['taikhoan'] = request.user.id
+        data['user'] = request.user.id
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

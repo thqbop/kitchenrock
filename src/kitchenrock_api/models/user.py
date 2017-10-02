@@ -112,8 +112,8 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
 
 class User(AbstractUser):
     is_disabled = models.BooleanField(default=False)
-    congthucmonan = models.ManyToManyField(FoodRecipe, db_table='kitchenrock_congthucyeuthich')
-    pathological = models.ManyToManyField(Pathological, db_table='kitchenrock_benhly_nguoidung') # pathological of user
+    foodrecipe = models.ManyToManyField(FoodRecipe, db_table='kitchenrock_favourite_food')
+    pathological = models.ManyToManyField(Pathological, db_table='kitchenrock_pathological_user') # pathological of user
 
     class Meta(AbstractUser.Meta):
         db_table = 'auth_user'

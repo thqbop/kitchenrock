@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 
 from kitchenrock_api.models.pathological import Pathological
+from kitchenrock_api.permissions import IsAuthenticated
 from kitchenrock_api.serializers.pathological import PathologicalSerializer
 from kitchenrock_api.views import BaseViewSet
 
@@ -17,7 +18,7 @@ class PathologicalViewSet(BaseViewSet):
         @api {GET} /pathological List pathological question
         @apiName List pathological question
         @apiGroup Pathological
-        @apiPermission User
+        @apiPermission None
 
         @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
         @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.

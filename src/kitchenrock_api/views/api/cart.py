@@ -37,39 +37,26 @@ class CartViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {int} ctma
+        @apiParam {int} foodrecipe
         @apiParam {boolean} add_accept If user comfirmed for want to add food to cart, You have to add this param to body request
 
-        @apiSuccess {object} food object food recipe
-        @apiSuccess {number} food.id_CTMA id of FR
-        @apiSuccess {string} food.ten name of FR
-        @apiSuccess {string} food.hinhAnh picture link of FR
-        @apiSuccess {int} food.doKho Level of FR
-        @apiSuccess {string} food.thoiGianChuanBi Prepare time
-        @apiSuccess {string} food.thoiGianThucHien execution time
-        @apiSuccess {string} food.cachLam How to do FR
-        @apiSuccess {string} food.nguyenLieu Material of FR
-        @apiSuccess {int} food.soLuongYeuThich Lover number
-        @apiSuccess {date} food.ngayKhoiTao Create date
-        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
-        @apiSuccess {int[]} food.theloai Food Categories
+        @apiSuccess {string} message
         """
         data = request.data.copy()
-        data['taikhoan'] = request.user.id
+        data['user'] = request.user.id
         add_accept = bool(request.data.get('add_accept', False))
-        food = FoodRecipe.objects.get(pk=data['ctma'])
+        food = FoodRecipe.objects.get(pk=data['foodrecipe'])
         if add_accept != True:
             warning = FoodRecipeService.check_healthy(food, request.user)
             if warning:
                 return Response({
                     'warning': warning,
-                    'id_food' : food.id_CTMA
+                    'id_food' : food.id
                 }, status=202)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        food = FoodRecipeSerializer(food)
-        return Response(food.data)
+        return Response({'message': 'Success'})
 
 
 
@@ -77,7 +64,7 @@ class CartViewSet(BaseViewSet):
     def list_by_date(self,request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {POST} /cart get list food recipe in cart with date create
+        @api {POST} /cart/list_by_date get list food recipe in cart with date create
         @apiName Cart
         @apiGroup FoodRecipes
         @apiPermission User
@@ -95,33 +82,41 @@ class CartViewSet(BaseViewSet):
             "Agent": "Samsung A5 2016, Android app, build_number other_info",
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
-        @apiParam {date} ngayTao Create date of Cart
+        @apiParam {date} create_date Create date of Cart
 
         @apiSuccess {object[]} food List object food recipe
-        @apiSuccess {number} food.id_CTMA id of FR
-        @apiSuccess {string} food.ten name of FR
-        @apiSuccess {string} food.hinhAnh picture link of FR
-        @apiSuccess {int} food.doKho Level of FR
-        @apiSuccess {string} food.thoiGianChuanBi Prepare time
-        @apiSuccess {string} food.thoiGianThucHien execution time
-        @apiSuccess {string} food.cachLam How to do FR
-        @apiSuccess {string} food.nguyenLieu Material of FR
-        @apiSuccess {int} food.soLuongYeuThich Lover number
-        @apiSuccess {date} food.ngayKhoiTao Create date
-        @apiSuccess {int} food.soKhauPhanAn How many people for FR?
-        @apiSuccess {int[]} food.theloai Food Categories
+        @apiSuccess {number} food.id id of FR
+        @apiSuccess {string} food.name name of FR
+        @apiSuccess {string} food.picture picture link of FR
+        @apiSuccess {int} food.level Level of FR
+        @apiSuccess {string} food.prepare_time Prepare time
+        @apiSuccess {string} food.cook_time execution time
+        @apiSuccess {string} food.method How to do FR
+        @apiSuccess {int} food.lovers Lover number
+        @apiSuccess {date} food.create_date Create date
+        @apiSuccess {int} food.serve How many people for FR?
+        @apiSuccess {int[]} food.categories Food Categories
+        @apiSuccess {json[]} food.materials Material of FR
+        @apiSuccess {int} food.materials.material_id id of material
+        @apiSuccess {string} food.materials.name name of material
+        @apiSuccess {string} food.materials.unit unit of material
+        @apiSuccess {int} food.materials.value value of material
+
         """
-        date = request.data.get('ngayTao', timezone.now())
+        date = request.data.get('create_date', timezone.now())
         user_id = request.user.id
-        result = Cart.objects.filter(taikhoan=user_id,ngayTao=date).select_related('ctma')
+        result = Cart.objects.filter(user=user_id,create_date=date).select_related('foodrecipe')
         foodincart = []
         for obj in result:
-            foodincart.append(obj.ctma)
+            serializer = FoodRecipeSerializer(obj.foodrecipe)
+            item = serializer.data.copy()
+            item['materials'] = FoodRecipeService.get_material(obj.foodrecipe)
+            foodincart.append(item)
         if len(foodincart) == 0:
             return Response({
                 'message': 'Không có dữ liệu'
             })
-        serializer = FoodRecipeSerializer(foodincart, many=True)
-        return Response(serializer.data)
+
+        return Response(foodincart)
 
 

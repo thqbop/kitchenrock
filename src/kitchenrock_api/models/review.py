@@ -4,12 +4,12 @@ from kitchenrock_api.models.user import User
 
 
 class Review(models.Model):
-    ctma = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
-    taikhoan = models.ForeignKey(User, on_delete=models.CASCADE)
-    soSao = models.IntegerField(default=1)
-    noiDung = models.TextField()
-    thoiGian = models.DateTimeField(auto_now_add=True)
+    foodrecipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    star = models.IntegerField(default=1)
+    content = models.TextField(null=True)
+    create_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('ctma', 'taikhoan')
-        db_table = 'kitchenrock_danhgia'
+        unique_together = ('foodrecipe', 'user')
+        db_table = 'kitchenrock_review'

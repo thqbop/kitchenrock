@@ -4,10 +4,10 @@ from kitchenrock_api.models.user import User
 
 
 class Cart(models.Model):
-    taikhoan = models.ForeignKey(User,on_delete=models.CASCADE)
-    ctma = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
-    ngayTao = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    foodrecipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
+    create_date = models.DateField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('taikhoan','ctma','ngayTao')
-        db_table = "kitchenrock_giodicho"
+        unique_together = ('user','foodrecipe','create_date')
+        db_table = "kitchenrock_cart"
