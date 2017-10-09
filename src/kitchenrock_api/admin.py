@@ -23,6 +23,7 @@ class FoodNutritionInline(admin.TabularInline):
     model = FoodNutrition
     extra = 1
 
+
 class FoodMaterialsInline(admin.TabularInline):
     model = FoodMaterial
     extra = 1
@@ -42,6 +43,8 @@ class NutritionAdmin(admin.ModelAdmin):
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('name', )
+
+
 
 class SearchPathologicalInline(admin.TabularInline):
     model = SearchPathological

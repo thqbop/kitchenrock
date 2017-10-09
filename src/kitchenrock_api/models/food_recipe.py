@@ -39,7 +39,7 @@ class FoodNutrition(models.Model):
 
 class FoodMaterial(models.Model):
     food_recipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
-    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, )
     value = models.IntegerField(default=0)
 
 

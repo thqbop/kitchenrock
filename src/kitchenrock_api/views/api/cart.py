@@ -64,9 +64,9 @@ class CartViewSet(BaseViewSet):
     def list_by_date(self,request, *args, **kwargs):
         """
         @apiVersion 1.0.0
-        @api {POST} /cart/list_by_date get list food recipe in cart with date create
+        @api {POST} /cart/list_by_date Get list food recipe in cart with date create
         @apiName Cart
-        @apiGroup FoodRecipes
+        @apiGroup Cart
         @apiPermission User
 
         @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)

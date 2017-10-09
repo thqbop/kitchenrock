@@ -8,6 +8,7 @@ class Material(models.Model):
     class Meta:
         unique_together = ("name",)
         db_table = 'kitchenrock_materials'
+        ordering = ['name']
 
 
     def __str__(self):
