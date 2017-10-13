@@ -73,7 +73,7 @@ class FoodRecipeViewSet(BaseViewSet):
         result['categories'] = FoodRecipeService.get_category(foodrecipe)
         result['nutritions'] = FoodRecipeService.get_nutrition(foodrecipe)
         # if user_id and food recipes are exists in favourite foods table
-        result['is_favourite'] = FoodRecipeService.get_favourite(pk,id_user)
+        result['is_favourite'] = FoodRecipeService.get_favourite(id_user,pk)
         return Response(result)
 
 
