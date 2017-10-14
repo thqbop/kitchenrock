@@ -4,6 +4,7 @@
 # @link http://www.codeographer.com/
 #
 #
+from kitchenrock_api.views.api.categories import CatViewSet
 from kitchenrock_api.views.api.pathological import PathologicalViewSet
 
 __author__ = "hien"
@@ -26,6 +27,8 @@ router.register(r'foodrecipe', FoodRecipeViewSet, base_name="foodrecipe")
 router.register(r'review', ReviewViewSet, base_name="review")
 router.register(r'cart', CartViewSet, base_name="cart")
 router.register(r'pathological', PathologicalViewSet, base_name="pathological")
+router.register(r'categories', CatViewSet, base_name="categories")
+
 
 urlpatterns = [
     url(r'^', include(router.urls)),
