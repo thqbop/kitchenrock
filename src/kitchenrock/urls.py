@@ -21,6 +21,7 @@ from . import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^admin/salmonella/', include('salmonella.urls')),
     url(r'^$', views.not_authorized, name='403'),
     url(r'^api/v1/', include('kitchenrock_api.router', namespace='v1', app_name=settings.KITCHENROCK_API)),
 ]

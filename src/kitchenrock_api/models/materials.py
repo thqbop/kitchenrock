@@ -6,7 +6,7 @@ class Material(models.Model):
     unit = models.CharField(max_length=50)
 
     class Meta:
-        unique_together = ("name",)
+        unique_together = ('name',)
         db_table = 'kitchenrock_materials'
         ordering = ['name']
 

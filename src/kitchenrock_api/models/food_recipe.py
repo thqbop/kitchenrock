@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from kitchenrock_api.models.food_category import FoodCategory
 from kitchenrock_api.models.materials import Material
@@ -32,16 +33,17 @@ class FoodRecipe(models.Model):
 class FoodNutrition(models.Model):
     foodrecipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
     nutrition = models.ForeignKey(Nutrition, on_delete=models.CASCADE)
-    value = models.IntegerField(default=0)
+    value = models.PositiveIntegerField(default=0,validators=[MinValueValidator(1)])
 
     class Meta:
+        unique_together = ('nutrition', 'foodrecipe')
         db_table = 'kitchenrock_food_nutritions'
 
 class FoodMaterial(models.Model):
     food_recipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, )
-    value = models.IntegerField(default=0)
-
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    value = models.PositiveIntegerField(default=0,validators=[MinValueValidator(1)])
 
     class Meta:
+        unique_together = ('material', 'food_recipe')
         db_table = 'kitchenrock_food_materials'

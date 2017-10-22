@@ -1,12 +1,14 @@
+from django import forms
 from django.conf import settings
 from django.contrib import admin
+from salmonella.admin import SalmonellaMixin
+
 from kitchenrock_api.models.food_recipe import FoodRecipe, FoodNutrition, FoodMaterial
 from kitchenrock_api.models.food_category import FoodCategory
 from kitchenrock_api.models.materials import Material
 from kitchenrock_api.models.nutrition import Nutrition
 from kitchenrock_api.models.pathological import Pathological, SearchPathological
 from kitchenrock_api.models.user import User
-
 
 def get_logo_url(logo):
     if not logo:
@@ -19,18 +21,38 @@ def get_logo_url(logo):
         logo = '%s%s' % (settings.MEDIA_URL, logo)
     return logo
 
+class PasswordUserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordUserForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # Since the pk is set this is not a new instance
+            self.fields['password'].widget = forms.HiddenInput()
+
+    def clean_password(self):
+        if self.instance and self.instance.pk:
+            return self.instance.password
+        else:
+            return self.cleaned_data['password']
+
 class FoodNutritionInline(admin.TabularInline):
     model = FoodNutrition
     extra = 1
 
-
-class FoodMaterialsInline(admin.TabularInline):
+class FoodMaterialsInline(SalmonellaMixin,admin.TabularInline):
     model = FoodMaterial
     extra = 1
+    # raw_id_fields = ('material',)
+    salmonella_fields = ('material',)
 
 class FoodRecipeAdmin(admin.ModelAdmin):
-    fields = ('name', 'picture', 'level',('prepare_time','cook_time'),'method','serve', 'categories')
+    fields = ('name', 'picture', 'level',('prepare_time','cook_time'),'method','serve', 'categories',)
     list_display = ('name',)
+    filter_horizontal = ('categories',)
     inlines = [
         FoodMaterialsInline,FoodNutritionInline,
     ]
@@ -43,8 +65,7 @@ class NutritionAdmin(admin.ModelAdmin):
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('name', )
-
-
+    search_fields = ('name',)
 
 class SearchPathologicalInline(admin.TabularInline):
     model = SearchPathological
@@ -57,12 +78,8 @@ class PathologicalAdmin(admin.ModelAdmin):
     ]
 
 class UserAdmin(admin.ModelAdmin):
-    fields = ('email', 'first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled', 'foodrecipe', 'pathological')
-    readonly_fields = ('email',)
-
-    def has_add_permission(self, request):
-        return False
-
+    form = PasswordUserForm
+    fields = ('email', 'password','first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled','is_staff', 'groups')
 
 admin.site.register(User,UserAdmin)
 admin.site.register(FoodRecipe, FoodRecipeAdmin)

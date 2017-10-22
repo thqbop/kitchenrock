@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kitchenrock_api',
     'template_email',
+    'salmonella',
 ]
 
 MIDDLEWARE_CLASSES = (
