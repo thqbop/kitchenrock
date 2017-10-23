@@ -9,6 +9,8 @@ from kitchenrock_api.models.materials import Material
 from kitchenrock_api.models.nutrition import Nutrition
 from kitchenrock_api.models.pathological import Pathological, SearchPathological
 from kitchenrock_api.models.user import User
+from kitchenrock_api.views.mixins import CreateUserMixin
+
 
 def get_logo_url(logo):
     if not logo:
@@ -77,9 +79,20 @@ class PathologicalAdmin(admin.ModelAdmin):
         SearchPathologicalInline,
     ]
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin, CreateUserMixin):
     form = PasswordUserForm
     fields = ('email', 'password','first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled','is_staff', 'groups')
+
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        if change:
+            obj.save()
+        else:
+            obj.set_password(obj.password)
+            obj.save()
+
 
 admin.site.register(User,UserAdmin)
 admin.site.register(FoodRecipe, FoodRecipeAdmin)

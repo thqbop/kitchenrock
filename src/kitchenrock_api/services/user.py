@@ -176,6 +176,8 @@ class UserService(BaseService):
             #     setattr(profile, key, profile_data[key])
             # profile.save()
             send_verify_email = True
+            if user.is_active:
+                send_verify_email = False
             if user_email != current_email:
                 cls.add_email(user.id, user.email, current_email=current_email, is_primary=True, password=password,
                               send_verify_email=send_verify_email)

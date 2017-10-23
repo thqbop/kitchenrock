@@ -272,49 +272,12 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
     def reset_password(self, request):
         """
         @apiVersion 1.0.0
-        @api {POST|PUT} /user/reset_password user forgot password
-        @apiName ResetPassword
+        @api {POST|PUT} /user/reset_password user forgot password by question
+        @apiName ResetPassword by question
         @apiGroup Kitchenrock_API Account
         @apiPermission none
 
-	@apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
-        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
-        @apiHeader {string} Appid Required
-        @apiHeader {string} Agent Optional
-        @apiHeader {string} Authorization Optional. format: token <token_string>
-        @apiHeaderExample {json} Request Header Non Authenticate Example:
-        {
-            "Type": 1,
-            "Device": "postman-TEST",
-            "Appid": 1,
-            "Agent": "Samsung A5 2016, Android app, build_number other_info"
-        }
-
-        @apiParam {String} [email] Required if method POST
-        @apiParam {string} [uid] Required if method PUT
-        @apiParam {string} [pin] Required if method PUT
-        @apiParam {string} [password] Required if method PUT
-
-        @apiSuccess [200]
-        """
-        if request.method == 'PUT':
-            return self.check_reset_password(request)
-        elif request.method == 'POST':
-            return self.reset_by_code(request)
-        else:
-            return self.check_reset_link(request)
-
-    # tutrinhcg: add reset passcode --start
-    @list_route(methods=['post', 'put'], permission_classes=(permissions.NotAuthenticated,))
-    def reset_pass_code(self, request):
-        """
-        @apiVersion 1.0.0
-        @api {POST|PUT} /user/reset_pass_code User forgot password
-        @apiName ResetPassword
-        @apiGroup Kitchenrock_API Account
-        @apiPermission none
-
-        @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+	    @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
         @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
         @apiHeader {string} Appid Required
         @apiHeader {string} Agent Optional
@@ -335,10 +298,7 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
         @apiParam {string} [token] Required if method PUT
         @apiParam {string} [password] Required if method PUT
 
-        @apiSuccess {string}[username] if method POST
-        @apiSuccess {string}[token] if method POST
-        @apiSuccess {string}[uid] if method POST
-        @apiSuccess {string}[message] if method PUT
+        @apiSuccess [200]
         """
         if request.method == 'PUT':
             return self.check_reset_password(request)
@@ -347,6 +307,47 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
                 return self.send_reset_pass_code(request)
             else:
                 raise exceptions.ParseError(_('wrong answer.'))
+
+    # tutrinhcg: add reset passcode --start
+    @list_route(methods=['post', 'put'], permission_classes=(permissions.NotAuthenticated,))
+    def reset_pass_code(self, request):
+        """
+        @apiVersion 1.0.0
+        @api {POST|PUT} /user/reset_pass_code User forgot password for mobile app
+        @apiName ResetPassword by code
+        @apiGroup Kitchenrock_API Account
+        @apiPermission none
+
+        @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
+        @apiHeader {string} Appid Required
+        @apiHeader {string} Agent Optional
+        @apiHeader {string} Authorization Optional. format: token <token_string>
+        @apiHeaderExample {json} Request Header Non Authenticate Example:
+        {
+            "Type": 1,
+            "Device": "postman-TEST",
+            "Appid": 1,
+            "Agent": "Samsung A5 2016, Android app, build_number other_info"
+        }
+
+        @apiParam {String} [email] Required if method POST
+        @apiParam {string} [uid] Required if method PUT
+        @apiParam {string} [pin] Required if method PUT
+        @apiParam {string} [password] Required if method PUT
+
+
+        @apiSuccess {string}[username] if method POST
+        @apiSuccess {string}[token] if method POST
+        @apiSuccess {string}[uid] if method POST
+        @apiSuccess {string}[message] if method PUT
+        """
+        if request.method == 'PUT':
+            return self.check_reset_password(request)
+        elif request.method == 'POST':
+            return self.reset_by_code(request)
+        else:
+            return self.check_reset_link(request)
 
     # def check_question(self, request):
     #     data = request.data.copy()
