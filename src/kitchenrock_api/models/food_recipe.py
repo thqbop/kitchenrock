@@ -20,7 +20,7 @@ class FoodRecipe(models.Model):
     lovers = models.IntegerField(default=0)
     create_date = models.DateField(auto_now_add=True)
     serve = models.IntegerField()
-    categories = models.ManyToManyField(FoodCategory, db_table='kitchenrock_food_category')
+    categories = models.ForeignKey(FoodCategory, on_delete=models.CASCADE)
     nutritions = models.ManyToManyField(Nutrition, through='FoodNutrition')
 
     class Meta:

@@ -53,8 +53,7 @@ class FoodMaterialsInline(SalmonellaMixin,admin.TabularInline):
 
 class FoodRecipeAdmin(admin.ModelAdmin):
     fields = ('name', 'picture', 'level',('prepare_time','cook_time'),'method','serve', 'categories',)
-    list_display = ('name',)
-    filter_horizontal = ('categories',)
+    list_display = ('name','categories',)
     inlines = [
         FoodMaterialsInline,FoodNutritionInline,
     ]

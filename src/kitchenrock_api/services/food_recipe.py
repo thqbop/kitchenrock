@@ -23,8 +23,8 @@ class FoodRecipeService(BaseService):
 
     @classmethod
     def get_category(cls, foodrecipe, **kwargs):
-        cat = foodrecipe.categories.all()
-        cat_serializer = CategorySerializer(cat, many=True)
+        cat = foodrecipe.categories
+        cat_serializer = CategorySerializer(cat)
         return cat_serializer.data
 
     @classmethod
