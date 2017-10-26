@@ -33,7 +33,7 @@ class FoodRecipe(models.Model):
 class FoodNutrition(models.Model):
     foodrecipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
     nutrition = models.ForeignKey(Nutrition, on_delete=models.CASCADE)
-    value = models.PositiveIntegerField(default=0,validators=[MinValueValidator(1)])
+    value = models.FloatField(default=0,validators=[MinValueValidator(0.1)])
 
     class Meta:
         unique_together = ('nutrition', 'foodrecipe')
@@ -42,7 +42,7 @@ class FoodNutrition(models.Model):
 class FoodMaterial(models.Model):
     food_recipe = models.ForeignKey(FoodRecipe, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
-    value = models.PositiveIntegerField(default=0,validators=[MinValueValidator(1)])
+    value = models.FloatField(default=0,validators=[MinValueValidator(0.1)])
 
     class Meta:
         unique_together = ('material', 'food_recipe')

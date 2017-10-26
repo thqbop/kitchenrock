@@ -1,16 +1,16 @@
-from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.db import transaction
 from salmonella.admin import SalmonellaMixin
 
+from kitchenrock_api.form import PasswordUserForm, MaterialNutritionForm, FoodMaterialForm
 from kitchenrock_api.models.food_recipe import FoodRecipe, FoodNutrition, FoodMaterial
 from kitchenrock_api.models.food_category import FoodCategory
-from kitchenrock_api.models.materials import Material
+from kitchenrock_api.models.materials import Material, MaterialNutrition
 from kitchenrock_api.models.nutrition import Nutrition
 from kitchenrock_api.models.pathological import Pathological, SearchPathological
 from kitchenrock_api.models.user import User
 from kitchenrock_api.views.mixins import CreateUserMixin
-
 
 def get_logo_url(logo):
     if not logo:
@@ -23,40 +23,65 @@ def get_logo_url(logo):
         logo = '%s%s' % (settings.MEDIA_URL, logo)
     return logo
 
-class PasswordUserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput())
-    class Meta:
-        model = User
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super(PasswordUserForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            # Since the pk is set this is not a new instance
-            self.fields['password'].widget = forms.HiddenInput()
-
-    def clean_password(self):
-        if self.instance and self.instance.pk:
-            return self.instance.password
-        else:
-            return self.cleaned_data['password']
-
-class FoodNutritionInline(admin.TabularInline):
-    model = FoodNutrition
+class MaterialNutritionInline(admin.TabularInline):
+    model = MaterialNutrition
+    form = MaterialNutritionForm
     extra = 1
 
 class FoodMaterialsInline(SalmonellaMixin,admin.TabularInline):
     model = FoodMaterial
     extra = 1
+    form = FoodMaterialForm
     # raw_id_fields = ('material',)
     salmonella_fields = ('material',)
+
 
 class FoodRecipeAdmin(admin.ModelAdmin):
     fields = ('name', 'picture', 'level',('prepare_time','cook_time'),'method','serve', 'categories',)
     list_display = ('name','categories',)
     inlines = [
-        FoodMaterialsInline,FoodNutritionInline,
+        FoodMaterialsInline,
     ]
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        formset.save()
+        if len(formset.cleaned_data) != 0:
+            data = formset.cleaned_data
+            list_nutri_food = {}
+            id_food = data[0]['food_recipe'].id
+            for obj in data:
+                if bool(obj):
+                    if obj.get('material',False):
+                        material = obj['material']
+                    else:
+                        material = obj['id'].material
+                    value = obj['value']
+                    delete =  obj['DELETE']
+                    if not delete:
+                        for nutri in material.nutritions.all():
+                            if nutri.pk in list_nutri_food.keys():
+                                list_nutri_food[nutri.pk] += nutri.materialnutrition_set.get(material=material).value*value
+                            else:
+                                list_nutri_food[nutri.pk] = nutri.materialnutrition_set.get(material=material).value * value
+            if bool(list_nutri_food):
+                for i in list_nutri_food:
+                    if not change:
+                        a = FoodNutrition(nutrition_id=i,foodrecipe_id=id_food,value=list_nutri_food.get(i))
+                        a.save()
+                    else:
+                        try:
+                            b = FoodNutrition.objects.get(nutrition_id=i,foodrecipe_id=id_food)
+                            b.value = list_nutri_food.get(i)
+                            b.save()
+                        except:
+                            a = FoodNutrition(nutrition_id=i, foodrecipe_id=id_food, value=list_nutri_food.get(i))
+                            a.save()
+            elif change:
+                FoodNutrition.objects.filter(foodrecipe_id=id_food).delete()
+
 
 class FoodCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )
@@ -65,8 +90,11 @@ class NutritionAdmin(admin.ModelAdmin):
     list_display = ('name', )
 
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'unit')
     search_fields = ('name',)
+    inlines = [
+        MaterialNutritionInline,
+    ]
 
 class SearchPathologicalInline(admin.TabularInline):
     model = SearchPathological
