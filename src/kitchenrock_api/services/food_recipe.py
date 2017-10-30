@@ -66,7 +66,7 @@ class FoodRecipeService(BaseService):
                     break;
                 # nutrition value need between permitted levels (max_value and min_value) of Pathological
                 if objFood_Nutri.value > objPathol_Nutri.max_value or objFood_Nutri.value < objPathol_Nutri.min_value:
-                    warning.append(nutri.name +  ' vượt quá mức cho phép dành cho sức khỏe của bạn. Cần cân nhắc.')
+                    warning.append("Bệnh lý " + objPathol_Nutri.pathological.name+": "+nutri.name +  ' vượt quá mức cho phép dành cho sức khỏe của bạn. Cần cân nhắc.')
         return warning
 
     @classmethod
