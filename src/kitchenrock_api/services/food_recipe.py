@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from kitchenrock_api.models.food_recipe import FoodRecipe, FoodNutrition, FoodMaterial
 from kitchenrock_api.models.pathological import SearchPathological
 from kitchenrock_api.models.review import Review
@@ -55,10 +57,13 @@ class FoodRecipeService(BaseService):
         pathologicals = user.pathological.all()
         for pathol in pathologicals:
             for nutri in nutritrions:
-                #get che do dinh duong cho phép của bệnh
-                objPathol_Nutri = SearchPathological.objects.get(nutrition=nutri,pathological=pathol)
-                #get nutrition of food
-                objFood_Nutri = FoodNutrition.objects.get(foodrecipe=food,nutrition=nutri)
+                try:
+                    #get che do dinh duong cho phép của bệnh
+                    objPathol_Nutri = SearchPathological.objects.get(nutrition=nutri,pathological=pathol)
+                    #get nutrition of food
+                    objFood_Nutri = FoodNutrition.objects.get(foodrecipe=food,nutrition=nutri)
+                except ObjectDoesNotExist:
+                    break;
                 # nutrition value need between permitted levels (max_value and min_value) of Pathological
                 if objFood_Nutri.value > objPathol_Nutri.max_value or objFood_Nutri.value < objPathol_Nutri.min_value:
                     warning.append(nutri.name +  ' vượt quá mức cho phép dành cho sức khỏe của bạn. Cần cân nhắc.')
