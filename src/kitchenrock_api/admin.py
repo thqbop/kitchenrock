@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.db import transaction
+from django.utils.translation import ugettext_lazy
 from salmonella.admin import SalmonellaMixin
 
 from kitchenrock_api.form import PasswordUserForm, MaterialNutritionForm, FoodMaterialForm
@@ -24,6 +25,8 @@ def get_logo_url(logo):
         logo = '%s%s' % (settings.MEDIA_URL, logo)
     return logo
 
+admin.site.disable_action('delete_selected')
+
 class MaterialNutritionInline(admin.TabularInline):
     model = MaterialNutrition
     form = MaterialNutritionForm
@@ -43,6 +46,7 @@ class FoodRecipeAdmin(admin.ModelAdmin):
     inlines = [
         FoodMaterialsInline,
     ]
+    actions = ['delete_selected']
 
     def save_formset(self, request, form, formset, change):
         """
@@ -86,9 +90,11 @@ class FoodRecipeAdmin(admin.ModelAdmin):
 
 class FoodCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )
+    actions = ['delete_selected']
 
 class NutritionAdmin(admin.ModelAdmin):
     list_display = ('name', )
+    actions = ['delete_selected']
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('name', 'unit')
@@ -96,6 +102,7 @@ class MaterialAdmin(admin.ModelAdmin):
     inlines = [
         MaterialNutritionInline,
     ]
+    actions = ['delete_selected']
 
 class SearchPathologicalInline(admin.TabularInline):
     model = SearchPathological
@@ -106,11 +113,12 @@ class PathologicalAdmin(admin.ModelAdmin):
     inlines = [
         SearchPathologicalInline,
     ]
+    actions = ['delete_selected']
 
 class UserAdmin(admin.ModelAdmin, CreateUserMixin):
     form = PasswordUserForm
     fields = ('email', 'password','first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled','is_staff', 'groups')
-
+    actions = ['del_users']
     def save_model(self, request, obj, form, change):
         """
         Given a model instance save it to the database.
@@ -124,6 +132,15 @@ class UserAdmin(admin.ModelAdmin, CreateUserMixin):
     def delete_model(self, request, obj):
         UserService.delete_user(obj.id)
 
+    def del_users(self, request, queryset):
+        with transaction.atomic():
+            try:
+                for obj in queryset:
+                    UserService.delete_user(obj.id)
+            except:
+                print("fail")
+
+    del_users.short_description = ugettext_lazy("Delete selected %(verbose_name_plural)s")
 
 
 admin.site.register(User,UserAdmin)
