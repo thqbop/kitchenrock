@@ -10,6 +10,7 @@ from kitchenrock_api.models.materials import Material, MaterialNutrition
 from kitchenrock_api.models.nutrition import Nutrition
 from kitchenrock_api.models.pathological import Pathological, SearchPathological
 from kitchenrock_api.models.user import User
+from kitchenrock_api.services.user import UserService
 from kitchenrock_api.views.mixins import CreateUserMixin
 
 def get_logo_url(logo):
@@ -119,6 +120,10 @@ class UserAdmin(admin.ModelAdmin, CreateUserMixin):
         else:
             obj.set_password(obj.password)
             obj.save()
+
+    def delete_model(self, request, obj):
+        UserService.delete_user(obj.id)
+
 
 
 admin.site.register(User,UserAdmin)
