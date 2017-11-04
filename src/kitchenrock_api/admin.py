@@ -13,6 +13,9 @@ from kitchenrock_api.models.pathological import Pathological, SearchPathological
 from kitchenrock_api.models.user import User
 from kitchenrock_api.services.user import UserService
 from kitchenrock_api.views.mixins import CreateUserMixin
+from django.contrib import messages
+
+ADMIN_EMAIL = 'admin@kitchenrock.com'
 
 def get_logo_url(logo):
     if not logo:
@@ -119,6 +122,18 @@ class UserAdmin(admin.ModelAdmin, CreateUserMixin):
     form = PasswordUserForm
     fields = ('email', 'password','first_name', 'last_name', 'is_active', 'is_superuser', 'is_disabled','is_staff', 'groups')
     actions = ['del_users']
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.readonly_fields + ('email',)
+        return self.readonly_fields
+
+    def has_delete_permission(self, request, obj=None):
+        if(obj != None):
+            if (obj.email == ADMIN_EMAIL):
+                return False
+        return True
+
     def save_model(self, request, obj, form, change):
         """
         Given a model instance save it to the database.
@@ -130,15 +145,18 @@ class UserAdmin(admin.ModelAdmin, CreateUserMixin):
             obj.save()
 
     def delete_model(self, request, obj):
-        UserService.delete_user(obj.id)
+        if (obj.email != ADMIN_EMAIL):
+            UserService.delete_user(obj.id)
 
     def del_users(self, request, queryset):
         with transaction.atomic():
             try:
                 for obj in queryset:
+                    if(obj.email == ADMIN_EMAIL):
+                        continue
                     UserService.delete_user(obj.id)
             except:
-                print("fail")
+                pass
 
     del_users.short_description = ugettext_lazy("Delete selected %(verbose_name_plural)s")
 
