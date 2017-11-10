@@ -38,6 +38,7 @@ class CartViewSet(BaseViewSet):
             "Authorization": "token QS7VF3JF29K22U1IY7LAYLNKRW66BNSWF9CH4BND"
         }
         @apiParam {int} foodrecipe
+        @apiParam {date} create_date
         @apiParam {boolean} add_accept If user comfirmed for want to add food to cart, You have to add this param to body request
 
         @apiSuccess {string} message

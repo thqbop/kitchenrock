@@ -12,7 +12,7 @@ __date__ = "07 07 2016, 9:27 AM"
 import os
 from datetime import date
 from os.path import join, exists
-
+from rest_framework import status
 import boto
 from PIL import Image, ImageOps
 from boto.s3.key import Key
@@ -232,6 +232,61 @@ class UserViewSet(BaseViewSet, UserLoginMixin, CreateUserMixin):
                 raise exceptions.ParseError(_('Invalid pin.'))
             # return Response({"message": "Your account has been activated"})
             return self.response_login(id=user_mail.user_id, client=client, remember_me=remember_me)
+
+    @list_route(methods=['post'], permission_classes=())
+    def send_mail_again(self, request, *args, **kwargs):
+        """
+        @apiVersion 1.0.0
+        @api {POST} /user/send_mail_again send mail again
+        @apiName SendVerifyMail
+        @apiGroup Kitchenrock_API Account
+        @apiPermission none
+
+        @apiHeader {number} Type Device type (1: Mobile, 2: Android phone, 3: IOS phone, 4: Window phone, 5: Android tablet, 6: IOS tablet, 7: Mobile web, tablet web, 8: Desktop web)
+        @apiHeader {string} Device Required, Device id, If from browser, please use md5 of useragent.
+        @apiHeader {string} Appid Required
+        @apiHeader {string} Agent Optional
+        @apiHeader {string} Authorization Optional. format: token <token_string>
+        @apiHeaderExample {json} Request Header Non Authenticate Example:
+        {
+            "Type": 1,
+            "Device": "postman-TEST",
+            "Appid": 1,
+            "Agent": "Samsung A5 2016, Android app, build_number other_info"
+        }
+
+        @apiParam {string} id_user
+        @apiParam {string} type If send mail again for activation, type = activation. If send mail again for reset pass, type = reset.
+
+        @apiSuccess {string} message
+        """
+        id_user = request.data.get('id_user', None)
+        type = request.data.get('type', 'activation')
+        user = User.objects.get(id=id_user)
+        if 'activation' == type:
+            pinObj = PinCode.objects.filter(user=id_user,is_active=1).order_by('-id').first()
+            if pinObj:
+                UserService.send_verify(pin=pinObj.pin, email=user.email)
+            else:
+                p = PinCode()
+                p.pin = Utils.id_generator(4)
+                p.user_id = id_user
+                p.is_active = True
+                p.save()
+                UserService.send_verify(pin=p.pin, email=user.email)
+        elif 'reset' == type:
+            pinObj = PinCode.objects.filter(user=id_user, is_active=0).order_by('-id').first()
+            if pinObj:
+                EmailService.reset_pin(pin=pinObj.pin, email=user.email)
+            else:
+                p = PinCode()
+                p.pin = Utils.id_generator(4)
+                p.user_id = id_user
+                p.save()
+                EmailService.reset_pin(pin=p.pin, email=user.email)
+        else:
+            return Response({"message": "Paramater TYPE is invalid"},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "A mail with pin code has been sent to your email, please check your email."})
 
     @list_route(methods=['put', 'post'], permission_classes=())
     def password(self, request, *args, **kwargs):

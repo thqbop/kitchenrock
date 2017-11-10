@@ -259,7 +259,6 @@ class UserService(BaseService):
         EmailService.verify_email_by_pin(
             pin=kwargs.pop('pin'),
             email_add=kwargs.pop('email'),
-            password=kwargs.pop('password'),
             template=kwargs.pop('template', 'verify')
         )
 
